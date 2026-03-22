@@ -1,7 +1,16 @@
-# atmos.env.socket
+# atmos-env-socket
 
-A [lua-atmos](../../../) environment for network communications based on
+An [Atmos][atmos] environment for network communications based on
 [luasocket][luasocket].
+
+[atmos]:      https://github.com/lua-atmos/atmos/
+[luasocket]:  https://lunarmodules.github.io/luasocket/
+
+# Install
+
+```
+sudo luarocks --lua-version=5.4 install atmos-env-socket
+```
 
 # Run
 
@@ -22,8 +31,6 @@ lua5.4 <lua-path>/atmos/env/socket/exs/cli-srv.lua
 - `clock`
 - `'closed'`
 
-[luasocket]:    https://lunarmodules.github.io/luasocket/
-
 # Source
 
 Assumes this directory structure:
@@ -31,7 +38,7 @@ Assumes this directory structure:
 ```
 .
 ├── atmos/
-├── env-sdl/
+├── env-socket/
 └── f-streams/
 ```
 
