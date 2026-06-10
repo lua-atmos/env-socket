@@ -1,0 +1,93 @@
+# Plan: Release env-socket v0.2 (atmos v0.7)
+
+## STATUS (@ 2026-06-10): NOT STARTED
+
+`env-socket` is at `v0.1` (atmos >= 0.6).
+atmos `v0.7` is released (`main`); env-sdl (`v0.2`) and
+env-pico (`v0.3`) are migrated + tested and serve as reference.
+This plan migrates env-socket to v0.7 and cuts a fresh `v0.2`.
+
+VERSION: `v0.2` (first bump after `v0.1`; no v0.2 exists yet).
+
+## Context
+
+env-socket keys its events on the SOCKET USERDATA plus a string
+selector (`'recv'`/`'send'`/`'closed'`), using MULTI-ARG
+`emit`/`await`, and drives time via a manual `'clock'` emit.
+v0.7 breaks all three:
+
+- Events: `emit`/`await` are SINGLE-ARG only.
+    - socket events become table patterns keyed on the userdata:
+      `{tag=<sock>, type='recv'|'send'|'closed', v=<data>}`
+    - tag equality (userdata==userdata) matches via core `M.is`;
+      `type=` narrows the selector; payload rides in `v=`.
+- Clock: emit a BARE NUMBER in microseconds (no `'clock'` tag,
+  no `clock{...}`); the core `'clock'` await primitive consumes
+  it. Mirror env-sdl `init.lua:97` -> `emit(dt_us)`.
+    - timers in exs use constants `_us_ _ms_ _s_ _min_ _h_ _day_`.
+- Env API: main body + `quit` (no `open`/`close`).
+    - env-socket already has no `open`; confirm `quit` (close any
+      lingering listen sockets) and keep `mode`/`step`.
+
+## Migration map (init.lua)
+
+| old (v0.1)                          | new (v0.7)                          |
+|-------------------------------------|-------------------------------------|
+| `await(srv, 'recv')`                | `await{tag=srv, type='recv'}`       |
+| `await(tcp, 'send')`                | `await{tag=tcp, type='send'}`       |
+| `local _,_,s = await(tcp, 'recv')`  | `local e = await{tag=tcp, type='recv'}` then use `e.v` |
+| `emit(k, 'recv')`                   | `emit{tag=k, type='recv'}`          |
+| `emit(k, 'recv', ok)`               | `emit{tag=k, type='recv', v=ok}`    |
+| `emit(k, 'recv', s)`                | `emit{tag=k, type='recv', v=s}`     |
+| `emit(k, 'closed')`                 | `emit{tag=k, type='closed'}`        |
+| `emit(k, 'send')`                   | `emit{tag=k, type='send'}`          |
+| `emit('clock', (now-old)*1000, M.now)` | `emit((now-old)*1e6)` (bare us)  |
+
+Decisions / gotchas:
+
+- `M.now`: keep exposing `env.now` (used by `exs/hello.lua`);
+  decide unit (ms today). The bare clock emit is independent of
+  `M.now`, so `now` can stay ms; just drop the 2nd/3rd emit args.
+- Pre-existing bug `M.xlisten`: `tcp:listen(baclog)` typo for
+  `backlog` (init.lua) -- fix while here.
+- Confirm `M.xrecv`/`M.xaccept` still return the same values to
+  callers after the `await` shape change.
+
+## Migration map (examples)
+
+| file              | old              | new          |
+|-------------------|------------------|--------------|
+| `exs/hello.lua`   | `clock{s=5}`     | `5 * _s_`    |
+| `exs/hello.lua`   | `clock{ms=500}`  | `500 * _ms_` |
+| `exs/cli-srv.lua` | `clock{s=1}`     | `1 * _s_`    |
+
+## Steps
+
+Two test phases (mirror env-sdl):
+1. Local: `LUA_PATH` trick from README.
+2. Global: `luarocks make`, then test.
+
+1. [ ] Migrate `init.lua` to v0.7 API (events table-patterns,
+       bare-us clock, `quit`)
+2. [ ] Migrate `exs/hello.lua`, `exs/cli-srv.lua` (`_s_`/`_ms_`)
+3. [ ] Update `README.md` (atmos 0.6 -> 0.7, env 0.1 -> 0.2)
+4. [ ] Phase 1 tests (local)
+    - [ ] `exs/hello.lua`
+    - [ ] `exs/cli-srv.lua`
+5. [ ] Create `atmos-env-socket-0.2-1.rockspec`
+       (branch `v0.2`, `atmos >= 0.7`, add `exs.*` modules)
+6. [ ] Make rockspec (`luarocks make`)
+7. [ ] Phase 2 tests (global)
+    - [ ] `exs/hello.lua`
+    - [ ] `exs/cli-srv.lua`
+8. [ ] Commit, push `main`
+9. [ ] Create/update version branch `v0.2`, ff `main`, push
+10. [ ] `luarocks upload atmos-env-socket-0.2-1.rockspec`
+
+## Reference
+
+- atmos plan: `atmos/.claude/plans/06-08-release-v0.7.md` (§4.3)
+- env-sdl (done): `env-sdl/.claude/plans/06-08-release-v0.2.md`
+- env-pico (done): `env-pico/.claude/plans/done/06-08-release-v0.3.md`
+- v0.7 patterns: env-sdl `init.lua` (clock `emit(dt*1000)` us;
+  events `e.tag=...; emit(e)`; `M.quit`; `atmos.env(M)`)
