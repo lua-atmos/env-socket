@@ -1,14 +1,14 @@
 # Plan: Release env-socket v0.2 (atmos v0.7)
 
-## STATUS (@ 2026-06-10): migrated + Phase-1 OK; needs release
+## STATUS (@ 2026-06-10): RELEASED (rock uploaded). Only `main`
+## ff left (main is 4 behind v0.2).
 
 Done: `init.lua` + both exs migrated to v0.7 (bare-us clock,
 `_s_`/`_ms_`, `baclog`->`backlog` typo fixed); rockspecs
 `0.2-1` + `-dev-1` created. Events re-keyed to string tag +
 handle: `{tag='recv'|'send'|'closed', h=<sock>, v=<data>}`.
 `quit`: NOT NEEDED (optional, core run.lua:372).
-Pending: README, `luarocks make`, Phase-2 global tests,
-commit + `v0.2` branch, upload.
+Pending: ff `main` to `v0.2` + push; `luarocks upload`.
 
 `env-socket` is at `v0.1` (atmos >= 0.6).
 atmos `v0.7` is released (`main`); env-sdl (`v0.2`) and
@@ -89,13 +89,15 @@ Two test phases (mirror env-sdl):
 5. [x] Create rockspecs: `atmos-env-socket-0.2-1.rockspec`
        (branch `v0.2`, `atmos ~> 0.7`) + `-dev-1` (branch
        `main`, unversioned `atmos`)
-6. [ ] Make rockspec (`luarocks make`)
-7. [ ] Phase 2 tests (global)
-    - [ ] `exs/hello.lua`
-    - [ ] `exs/cli-srv.lua`
-8. [ ] Commit, push `main`
-9. [ ] Create/update version branch `v0.2`, ff `main`, push
-10. [ ] `luarocks upload atmos-env-socket-0.2-1.rockspec`
+6. [x] Make rockspec (`luarocks make`)
+7. [x] Phase 2 tests (global) -- both OK
+    - [x] `exs/hello.lua`
+    - [x] `exs/cli-srv.lua`
+8. [x] Commit + push `v0.2` (done on branch `v0.2`)
+9. [~] Version branch `v0.2` created + pushed; `main` NOT yet
+       ff'd (main is 4 behind v0.2) -> `git checkout main &&
+       git merge --ff-only v0.2 && git push && git checkout v0.2`
+10. [x] `luarocks upload atmos-env-socket-0.2-1.rockspec`
 
 ## Reference
 
