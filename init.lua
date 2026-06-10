@@ -29,7 +29,7 @@ function M.xtcp ()
 end
 
 function M.xlisten (tcp, backlog)
-    local ok, err = tcp:listen(baclog)
+    local ok, err = tcp:listen(backlog)
     if ok == nil then
         return nil, err
     end
@@ -41,7 +41,7 @@ function M.xlisten (tcp, backlog)
 end
 
 function M.xaccept (srv)
-    await(srv, 'recv')
+    await{tag='recv', h=srv}
     local cli, err = srv:accept()
     if cli == nil then
         return nil, err
@@ -57,7 +57,7 @@ function M.xconnect (tcp, addr, port)
     end)
     local ok, err = tcp:connect(addr, port)
     assert(ok==nil and err=='timeout')
-    await(tcp, 'send')
+    await{tag='send', h=tcp}
 --[[
     local ok, err = tcp:connect(addr, port)
     if ok==1 or (ok==nil and err=="Already connected") then
@@ -74,8 +74,8 @@ function M.xrecv (tcp)
     local _ <close> = defer(function ()
         rem(rs, tcp)
     end)
-    local _,_,s = await(tcp, 'recv')
-    return s
+    local e = await{tag='recv', h=tcp}
+    return e.v
 end
 
 local old = socket.gettime()
@@ -90,19 +90,19 @@ function M.step ()
     for k in pairs(r) do
         if type(k) == 'userdata' then
             if not k:getpeername() then
-                emit(k, 'recv') -- server connection
+                emit{tag='recv', h=k} -- server connection
             else
                 local ok,err,s = k:receive('*a')
                 if ok then
-                    emit(k, 'recv', ok)
+                    emit{tag='recv', h=k, v=ok}
                 else
                     if s ~= '' then
-                        emit(k, 'recv', s)
+                        emit{tag='recv', h=k, v=s}
                     end
                     if err == 'timeout' then
                         -- ok
                     elseif err == 'closed' then
-                        emit(k, 'closed')
+                        emit{tag='closed', h=k}
                     else
                         error(err)
                     end
@@ -112,12 +112,12 @@ function M.step ()
     end
     for k in pairs(s) do
         if type(k) == 'userdata' then
-            emit(k, 'send')
+            emit{tag='send', h=k}
         end
     end
     if cur ~= 'secondary' then
         if now > old then
-            emit('clock', (now-old)*1000, M.now)
+            emit((now-old) * 1e6)
             old = now
         end
     end

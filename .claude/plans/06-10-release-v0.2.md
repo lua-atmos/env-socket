@@ -2,13 +2,13 @@
 
 ## STATUS (@ 2026-06-10): migrated + Phase-1 OK; needs release
 
-Done: `init.lua` + both exs migrated to v0.7 (events table
-patterns, bare-us clock, `_s_`/`_ms_`, `baclog`->`backlog`
-typo fixed); both exs run locally (Phase-1 OK); rockspecs
-`0.2-1` + `-dev-1` created. `quit`: NOT NEEDED (optional in
-core run.lua:372; socket env has no global resource).
-Pending: README, `luarocks make`, Phase-2 global tests,
-commit + `v0.2` branch, upload.
+Done: `init.lua` + both exs migrated to v0.7 (bare-us clock,
+`_s_`/`_ms_`, `baclog`->`backlog` typo fixed); rockspecs
+`0.2-1` + `-dev-1` created. Events re-keyed to string tag +
+handle: `{tag='recv'|'send'|'closed', h=<sock>, v=<data>}`.
+`quit`: NOT NEEDED (optional, core run.lua:372).
+Pending: RE-RUN Phase-1 (event shape changed), README,
+`luarocks make`, Phase-2, commit + `v0.2` branch, upload.
 
 `env-socket` is at `v0.1` (atmos >= 0.6).
 atmos `v0.7` is released (`main`); env-sdl (`v0.2`) and
@@ -25,10 +25,13 @@ selector (`'recv'`/`'send'`/`'closed'`), using MULTI-ARG
 v0.7 breaks all three:
 
 - Events: `emit`/`await` are SINGLE-ARG only.
-    - socket events become table patterns keyed on the userdata:
-      `{tag=<sock>, type='recv'|'send'|'closed', v=<data>}`
-    - tag equality (userdata==userdata) matches via core `M.is`;
-      `type=` narrows the selector; payload rides in `v=`.
+    - socket events use a STRING tag selector + handle field:
+      `{tag='recv'|'send'|'closed', h=<sock>, v=<data>}`
+    - `tag` stays a string (atmos idiom, readable trace);
+      `h=` is the socket handle, matched by userdata equality
+      via core `M.is` (run.lua:96, checked per-field at
+      run.lua:621); payload rides in `v=`.
+    - bonus: `await{tag='recv'}` (no `h`) wakes on ANY socket.
 - Clock: emit a BARE NUMBER in microseconds (no `'clock'` tag,
   no `clock{...}`); the core `'clock'` await primitive consumes
   it. Mirror env-sdl `init.lua:97` -> `emit(dt_us)`.
@@ -41,14 +44,14 @@ v0.7 breaks all three:
 
 | old (v0.1)                          | new (v0.7)                          |
 |-------------------------------------|-------------------------------------|
-| `await(srv, 'recv')`                | `await{tag=srv, type='recv'}`       |
-| `await(tcp, 'send')`                | `await{tag=tcp, type='send'}`       |
-| `local _,_,s = await(tcp, 'recv')`  | `local e = await{tag=tcp, type='recv'}` then use `e.v` |
-| `emit(k, 'recv')`                   | `emit{tag=k, type='recv'}`          |
-| `emit(k, 'recv', ok)`               | `emit{tag=k, type='recv', v=ok}`    |
-| `emit(k, 'recv', s)`                | `emit{tag=k, type='recv', v=s}`     |
-| `emit(k, 'closed')`                 | `emit{tag=k, type='closed'}`        |
-| `emit(k, 'send')`                   | `emit{tag=k, type='send'}`          |
+| `await(srv, 'recv')`                | `await{tag='recv', h=srv}`          |
+| `await(tcp, 'send')`                | `await{tag='send', h=tcp}`          |
+| `local _,_,s = await(tcp, 'recv')`  | `local e = await{tag='recv', h=tcp}` then use `e.v` |
+| `emit(k, 'recv')`                   | `emit{tag='recv', h=k}`             |
+| `emit(k, 'recv', ok)`               | `emit{tag='recv', h=k, v=ok}`       |
+| `emit(k, 'recv', s)`                | `emit{tag='recv', h=k, v=s}`        |
+| `emit(k, 'closed')`                 | `emit{tag='closed', h=k}`           |
+| `emit(k, 'send')`                   | `emit{tag='send', h=k}`             |
 | `emit('clock', (now-old)*1000, M.now)` | `emit((now-old)*1e6)` (bare us)  |
 
 Decisions / gotchas:
@@ -79,9 +82,9 @@ Two test phases (mirror env-sdl):
        bare-us clock; `quit` not needed; typo fixed)
 2. [x] Migrate `exs/hello.lua`, `exs/cli-srv.lua` (`_s_`/`_ms_`)
 3. [ ] Update `README.md` (atmos 0.6 -> 0.7, env 0.1 -> 0.2)
-4. [x] Phase 1 tests (local) -- both working
-    - [x] `exs/hello.lua`
-    - [x] `exs/cli-srv.lua`
+4. [ ] Phase 1 tests (local) -- RE-RUN after tag/h re-key
+    - [ ] `exs/hello.lua`
+    - [ ] `exs/cli-srv.lua`
 5. [x] Create rockspecs: `atmos-env-socket-0.2-1.rockspec`
        (branch `v0.2`, `atmos ~> 0.7`) + `-dev-1` (branch
        `main`, unversioned `atmos`)
