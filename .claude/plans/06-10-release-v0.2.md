@@ -7,8 +7,8 @@ Done: `init.lua` + both exs migrated to v0.7 (bare-us clock,
 `0.2-1` + `-dev-1` created. Events re-keyed to string tag +
 handle: `{tag='recv'|'send'|'closed', h=<sock>, v=<data>}`.
 `quit`: NOT NEEDED (optional, core run.lua:372).
-Pending: RE-RUN Phase-1 (event shape changed), README,
-`luarocks make`, Phase-2, commit + `v0.2` branch, upload.
+Pending: README, `luarocks make`, Phase-2 global tests,
+commit + `v0.2` branch, upload.
 
 `env-socket` is at `v0.1` (atmos >= 0.6).
 atmos `v0.7` is released (`main`); env-sdl (`v0.2`) and
@@ -81,10 +81,11 @@ Two test phases (mirror env-sdl):
 1. [x] Migrate `init.lua` to v0.7 API (events table-patterns,
        bare-us clock; `quit` not needed; typo fixed)
 2. [x] Migrate `exs/hello.lua`, `exs/cli-srv.lua` (`_s_`/`_ms_`)
-3. [ ] Update `README.md` (atmos 0.6 -> 0.7, env 0.1 -> 0.2)
-4. [ ] Phase 1 tests (local) -- RE-RUN after tag/h re-key
-    - [ ] `exs/hello.lua`
-    - [ ] `exs/cli-srv.lua`
+3. [x] Update `README.md` (version block + stable `v0.2`,
+       `Dependencies: atmos v0.7`, Events section re-keyed)
+4. [x] Phase 1 tests (local) -- both OK after tag/h re-key
+    - [x] `exs/hello.lua`
+    - [x] `exs/cli-srv.lua`
 5. [x] Create rockspecs: `atmos-env-socket-0.2-1.rockspec`
        (branch `v0.2`, `atmos ~> 0.7`) + `-dev-1` (branch
        `main`, unversioned `atmos`)

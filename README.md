@@ -6,11 +6,20 @@ An [Atmos][atmos] environment for network communications based on
 [atmos]:      https://github.com/lua-atmos/atmos/
 [luasocket]:  https://lunarmodules.github.io/luasocket/
 
+[
+    [`v0.2`](https://github.com/lua-atmos/env-socket/tree/v0.2)  |
+    [`v0.1`](https://github.com/lua-atmos/env-socket/tree/v0.1)
+]
+
+Stable branch is [`v0.2`](https://github.com/lua-atmos/env-socket/tree/v0.2).
+
 # Install
 
 ```
 sudo luarocks --lua-version=5.4 install atmos-env-socket
 ```
+
+Dependencies: `luasocket`, `atmos v0.7`
 
 # Run
 
@@ -28,8 +37,10 @@ lua5.4 <lua-path>/atmos/env/socket/exs/cli-srv.lua
 
 # Events
 
-- `clock`
-- `'closed'`
+- clock: bare-number microseconds (core `'clock'` primitive)
+- socket events: `{ tag='recv'|'send'|'closed', h=<sock>, v=<data> }`
+    - `await{ tag='recv', h=sock }` -- this socket
+    - `await{ tag='recv' }` -- any socket
 
 # Source
 
