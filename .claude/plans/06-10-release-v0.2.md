@@ -1,6 +1,12 @@
 # Plan: Release env-socket v0.2 (atmos v0.7)
 
-## STATUS (@ 2026-06-10): NOT STARTED
+## STATUS (@ 2026-06-10): code migrated (steps 1-2); needs tests
+
+Done: `init.lua` + both exs migrated to v0.7 (events table
+patterns, bare-us clock, `_s_`/`_ms_`, `baclog`->`backlog`
+typo fixed). `quit`: NOT NEEDED (optional in core run.lua:372;
+socket env has no global resource). Pending: README, rockspec,
+tests, release.
 
 `env-socket` is at `v0.1` (atmos >= 0.6).
 atmos `v0.7` is released (`main`); env-sdl (`v0.2`) and
@@ -67,15 +73,16 @@ Two test phases (mirror env-sdl):
 1. Local: `LUA_PATH` trick from README.
 2. Global: `luarocks make`, then test.
 
-1. [ ] Migrate `init.lua` to v0.7 API (events table-patterns,
-       bare-us clock, `quit`)
-2. [ ] Migrate `exs/hello.lua`, `exs/cli-srv.lua` (`_s_`/`_ms_`)
+1. [x] Migrate `init.lua` to v0.7 API (events table-patterns,
+       bare-us clock; `quit` not needed; typo fixed)
+2. [x] Migrate `exs/hello.lua`, `exs/cli-srv.lua` (`_s_`/`_ms_`)
 3. [ ] Update `README.md` (atmos 0.6 -> 0.7, env 0.1 -> 0.2)
 4. [ ] Phase 1 tests (local)
     - [ ] `exs/hello.lua`
     - [ ] `exs/cli-srv.lua`
-5. [ ] Create `atmos-env-socket-0.2-1.rockspec`
-       (branch `v0.2`, `atmos >= 0.7`, add `exs.*` modules)
+5. [x] Create rockspecs: `atmos-env-socket-0.2-1.rockspec`
+       (branch `v0.2`, `atmos ~> 0.7`) + `-dev-1` (branch
+       `main`, unversioned `atmos`)
 6. [ ] Make rockspec (`luarocks make`)
 7. [ ] Phase 2 tests (global)
     - [ ] `exs/hello.lua`
