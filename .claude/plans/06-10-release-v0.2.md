@@ -1,7 +1,7 @@
 # Plan: Release env-socket v0.2 (atmos v0.7)
 
-## STATUS (@ 2026-06-10): RELEASED (rock uploaded). Only `main`
-## ff left (main is 4 behind v0.2).
+## STATUS (@ 2026-06-10): RELEASED + COMPLETE. v0.2 rock
+## uploaded; `main` ff'd to `v0.2` and synced to origin.
 
 Done: `init.lua` + both exs migrated to v0.7 (bare-us clock,
 `_s_`/`_ms_`, `baclog`->`backlog` typo fixed); rockspecs
@@ -94,9 +94,8 @@ Two test phases (mirror env-sdl):
     - [x] `exs/hello.lua`
     - [x] `exs/cli-srv.lua`
 8. [x] Commit + push `v0.2` (done on branch `v0.2`)
-9. [~] Version branch `v0.2` created + pushed; `main` NOT yet
-       ff'd (main is 4 behind v0.2) -> `git checkout main &&
-       git merge --ff-only v0.2 && git push && git checkout v0.2`
+9. [x] Version branch `v0.2` created + pushed; `main` ff'd to
+       `v0.2` and synced to origin
 10. [x] `luarocks upload atmos-env-socket-0.2-1.rockspec`
 
 ## Reference
