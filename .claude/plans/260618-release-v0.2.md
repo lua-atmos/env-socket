@@ -28,6 +28,12 @@ immutable luarocks.org. Mirror atmos `0.7-2` / `dev-3`.
 6. [ ] Commit, push `v0.2`, ff `main`, sync
 7. [ ] `luarocks upload atmos-env-socket-0.2-2.rockspec`
 
+## Downstream (no dedicated app)
+
+env-socket has no app of its own. Its only downstream consumer
+is env-iup's `exs/iup-net.lua` (depends on `atmos.env.socket`);
+re-test it when migrating env-iup.
+
 --------------------------------------------------------------
 
 ## PRIOR CUT (frozen -- atmos 0.7-1 era, for reference)
