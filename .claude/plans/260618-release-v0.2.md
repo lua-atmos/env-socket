@@ -1,6 +1,6 @@
 # Plan: Re-release env-socket v0.2 (atmos 0.7-2)
 
-## RESUME HERE (state @ 2026-06-18) -- NEXT = §1 migrate
+## RESUME HERE (state @ 2026-06-18) -- NEXT = §4 git (yours)
 
 PRIOR CUT (frozen, see bottom): env-socket v0.2 / rock
 `0.2-1` was released for atmos 0.7-1. That work stands.
@@ -13,20 +13,21 @@ Breaking sites (scan @ 2026-06-18):
 - `exs/hello.lua:6` `every(500*_ms_, ...)` -> `loop_on(...)`
 - no `task()` / bare `spawn(function` -> nothing else
 
-Rocks branch-track `v0.2`, so pushing the fix to the `v0.2`
-branch already serves it under `0.2-1`; a new rock rev `0.2-2`
-(+ `dev-2`, replaces `dev-1`) is only to re-publish on the
-immutable luarocks.org. Mirror atmos `0.7-2` / `dev-3`.
+Rocks branch-track `v0.2` (and `dev` tracks `main`), with NO
+pinned tag/commit. So pushing the fix to those branches already
+serves it under the EXISTING `0.2-1` / `dev-1` -- luarocks
+rebuilds from branch HEAD at install. DECISION (@ 2026-06-18):
+SKIP the cosmetic `0.2-2`/`dev-2` bump + upload; no functional
+gain. Just test + push `v0.2` + ff `main`.
 
 ## Steps (this re-cut)
 
-1. [ ] Migrate `exs/hello.lua`: `every(` -> `loop_on(`
-2. [ ] Grep clean: no `every(` / `task()` / bare `spawn(function`
-3. [ ] Test local (LUA_PATH): hello, cli-srv
-4. [ ] `0.2-2.rockspec` (copy 0.2-1, branch v0.2) + `dev-2`
-5. [ ] `luarocks make` + test global
-6. [ ] Commit, push `v0.2`, ff `main`, sync
-7. [ ] `luarocks upload atmos-env-socket-0.2-2.rockspec`
+1. [x] Migrate `exs/hello.lua`: `every(` -> `loop_on(`
+2. [x] Grep clean: no `every(` / `task()` / bare `spawn(function`
+3. [x] Test local (LUA_PATH): hello [x], cli-srv [x]
+4. [ ] Commit, push `v0.2`, ff `main`, sync
+   (SKIPPED: 0.2-2/dev-2 rockspec, luarocks make/upload --
+    branch-track serves the fix under existing 0.2-1/dev-1)
 
 ## Downstream (no dedicated app)
 
