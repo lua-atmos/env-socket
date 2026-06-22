@@ -7,7 +7,7 @@ loop(function ()
     s.xlisten(srv)
     local _,p = srv:getsockname()
 
-    par_or(function ()
+    par_any(function ()
         local oth = assert(s.xaccept(srv))
         while true do
             local v = s.xrecv(oth)
